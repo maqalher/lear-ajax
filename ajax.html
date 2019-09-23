@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Ajax</title>
+    <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+    <script src="spin.js"></script>
+
+
+</head>
+
+<body>
+    <div id="main">
+        <h1>Formulario de Contacto</h1>
+        <form action="peticion.php" name="fo" method="POST">
+            <input class="nombre" type="text" name="nombre" placeholder="Nombre..">
+            <input class="mail" type="email" name="mail" placeholder="Correo electronico..">
+            <textarea class="mensaje" name="mensaje" placeholder="Mesnaje..."></textarea>
+            <div style="display: block; width: 60%; margin: 0 auto;">
+                <div id="status">
+                    <!--img src="" alt=""-->
+                </div>
+            </div>
+            <input type="submit" name="send" value="Enviar">
+        </form>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            var pet = $('#main form').attr('action');
+            var met = $('#main form').attr('method');
+            var nom, m, msj;
+
+            $.fn.spin = function(opts) {
+                this.each(function() {
+                    var $this = $(this),
+                        spinner = $this.data('spinner');
+
+                    if (spinner) spinner.stop();
+                    if (opts !== false) {
+                        opts = $.extend({
+                            color: $this.css('color')
+                        }, opts);
+                        spinner = new Spinner(opts).spin(this);
+                        $this.data('spinner', spinner);
+                    }
+                });
+                return this;
+            };
+
+
+
+            $('#main form').on('submit', function(e) {
+
+                $('#status').html('Cargando...');
+                nom = document.querySelector('.nombre').value;
+                m = document.querySelector('.mail').value;
+                msj = document.querySelector('.mensaje').value;
+                e.preventDefault();
+                $.ajax({
+                    beforeSend: function() {
+                        $('#status').spin({
+                            radius: 3,
+                            width: 2,
+                            height: 2,
+                            lenght: 4
+                        });
+
+                        console.log('before');
+                    },
+                    url: pet,
+                    type: 'POST',
+                    data: {
+                        nombre: nom,
+                        mail: m,
+                        mensaje: msj
+                    },
+                    success: function(resp) {
+                        //$('#stauts').html('<img src="img/ok.png">');
+                        $('#status').spin({
+                            radius: 3,
+                            width: 2,
+                            height: 2,
+                            lenght: 4
+                        });
+                        setTimeout(function() {
+                            if (resp == "Correcto") {
+                                $('#status').html('ok');
+                            } else {
+                                $('#status').html('X');
+                            }
+                            console.log(resp);
+                        }, 1000)
+
+                    },
+                    error: function(jqXHR, estado, error) {
+                        //$('#stauts').html('<img src="img/ok.png">');
+                        $('#status').html('X');
+                        console.log(estado);
+                        console.log(error);
+                    },
+                    complete: function(jqXHR, estado) {
+                        console.log(estado)
+                    }
+
+                });
+            });
+
+        });
+
+        /*
+        
+        data: {
+                        nombre: nom,
+                        mail: m,
+                        mensaje: msj
+                    },
+
+
+        data: $('#main form').serialize(),
+
+
+        http://api.jquery.com/jQuery.ajax/
+
+estado : timeout, error, abort, parsererror
+
+complete: succes, notmodified, timeout, error, abort, parsererror
+
+
+succes: function(response){
+    let task = JSON.parse(response);
+}
+
+
+http://www.jque.re/plugins/misc/spin.js/index.html
+
+timeout: 3000
+
+https://www.youtube.com/watch?v=J9W0aW78o14
+        */
+    </script>
+</body>
+
+</html>
